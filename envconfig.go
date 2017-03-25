@@ -142,8 +142,8 @@ func gatherInfo(prefix string, spec interface{}) ([]varInfo, error) {
 	return infos, nil
 }
 
-// Process populates the specified struct based on environment variables
-func Process(prefix string, spec interface{}) error {
+// ParseEnv populates the specified struct based on environment variables
+func ParseEnv(prefix string, spec interface{}) error {
 	infos, err := gatherInfo(prefix, spec)
 
 	for _, info := range infos {

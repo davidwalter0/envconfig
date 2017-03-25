@@ -1,0 +1,21 @@
+#!/bin/bash
+unset MYAPP_DEBUG
+unset MYAPP_PORT
+unset MYAPP_USER
+unset MYAPP_USERNAME
+unset MYAPP_USER_NAME
+unset MYAPP_RATE
+unset MYAPP_TIMEOUT
+unset MYAPP_USERS
+unset MYAPP_COLORCODES
+
+export MYAPP_DEBUG="false"
+export MYAPP_PORT="8080"
+export MYAPP_USER="Kelsey"
+# export MYAPP_USERNAME="Kelsey Hightower"
+export MYAPP_USER_NAME="Kelsey Hightower"
+export MYAPP_RATE="0.5"
+export MYAPP_TIMEOUT="3m"
+export MYAPP_USERS="rob,ken,robert"
+export MYAPP_COLORCODES="red:1,green:2,blue:3"
+
