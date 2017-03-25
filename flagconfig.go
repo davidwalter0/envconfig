@@ -1,7 +1,6 @@
 package envconfig
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"reflect"
@@ -9,19 +8,22 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	// "github.com/davidwalter0/envconfig/flag"
+	"./flag"
 )
 
 // Parse calls ParseEnv then ParseFlags
 func Parse(prefix string, T interface{}) error {
+	return Process(prefix, T)
+}
+
+// Process wraps Parse which orders sets precedence
+func Process(prefix string, T interface{}) error {
 	err := ParseEnv(prefix, T)
 	err = ParseFlags(T)
 	flag.Parse()
 	return err
-}
-
-// Process wraps Parse which orders sets precedence
-func Process(prefix string, spec interface{}) error {
-	return Parse(prefix, spec)
 }
 
 // ParseFlags wraps BuildFlagsFromStructPtr
@@ -39,7 +41,7 @@ func TypeAlignDefault(text string, T reflect.StructField) (interface{}, error) {
 			return 0, nil
 		}
 		if T.Type.Kind() == reflect.Int64 &&
-			T.PkgPath == "time" &&
+			T.Type.PkgPath() == "time" &&
 			T.Type.Name() == "Duration" {
 			return time.ParseDuration(text)
 		}
@@ -52,7 +54,10 @@ func TypeAlignDefault(text string, T reflect.StructField) (interface{}, error) {
 		lhs, rhs := strconv.ParseFloat(text, T.Type.Bits())
 		return (float64)(lhs), rhs
 	case reflect.Slice:
-		fmt.Println("fix slice in next iteration")
+		fmt.Println("fix map in next iteration", text)
+		lhs := flag.SliceValue(strings.Split(text, ","))
+		fmt.Println("fix map in next iteration", lhs)
+		return lhs, nil
 	case reflect.Map:
 		fmt.Println("fix map in next iteration")
 	}
@@ -156,6 +161,16 @@ func BuildFlagsFromStructPtr(T interface{}) error {
 					}
 				}
 				flag.BoolVar(ptr, arg, v, usage)
+			case *float32:
+				var v float32
+				if *ptr != v {
+					v = *ptr
+				} else {
+					if defaultValue != nil {
+						v = defaultValue.(float32)
+					}
+				}
+				flag.Float32Var(ptr, arg, v, usage)
 			case *float64:
 				var v float64
 				if *ptr != v {
@@ -166,16 +181,6 @@ func BuildFlagsFromStructPtr(T interface{}) error {
 					}
 				}
 				flag.Float64Var(ptr, arg, v, usage)
-			case *int64:
-				var v int64
-				if *ptr != v {
-					v = *ptr
-				} else {
-					if defaultValue != nil {
-						v = defaultValue.(int64)
-					}
-				}
-				flag.Int64Var(ptr, arg, v, usage)
 			case *int:
 				var v int
 				if *ptr != v {
@@ -186,16 +191,6 @@ func BuildFlagsFromStructPtr(T interface{}) error {
 					}
 				}
 				flag.IntVar(ptr, arg, v, usage)
-			case *uint64:
-				var v uint64
-				if *ptr != v {
-					v = *ptr
-				} else {
-					if defaultValue != nil {
-						v = defaultValue.(uint64)
-					}
-				}
-				flag.Uint64Var(ptr, arg, v, usage)
 			case *uint:
 				var v uint
 				if *ptr != v {
@@ -206,6 +201,98 @@ func BuildFlagsFromStructPtr(T interface{}) error {
 					}
 				}
 				flag.UintVar(ptr, arg, v, usage)
+			case *int64:
+				var v int64
+				if *ptr != v {
+					v = *ptr
+				} else {
+					if defaultValue != nil {
+						v = defaultValue.(int64)
+					}
+				}
+				flag.Int64Var(ptr, arg, v, usage)
+			case *uint64:
+				var v uint64
+				if *ptr != v {
+					v = *ptr
+				} else {
+					if defaultValue != nil {
+						v = defaultValue.(uint64)
+					}
+				}
+				flag.Uint64Var(ptr, arg, v, usage)
+			case *int8:
+				var v int8
+				if *ptr != v {
+					v = *ptr
+				} else {
+					if defaultValue != nil {
+						v = defaultValue.(int8)
+					}
+				}
+				flag.Int8Var(ptr, arg, v, usage)
+			case *uint8:
+				var v uint8
+				if *ptr != v {
+					v = *ptr
+				} else {
+					if defaultValue != nil {
+						v = defaultValue.(uint8)
+					}
+				}
+				flag.Uint8Var(ptr, arg, v, usage)
+			case *int16:
+				var v int16
+				if *ptr != v {
+					v = *ptr
+				} else {
+					if defaultValue != nil {
+						v = defaultValue.(int16)
+					}
+				}
+				flag.Int16Var(ptr, arg, v, usage)
+			case *uint16:
+				var v uint16
+				if *ptr != v {
+					v = *ptr
+				} else {
+					if defaultValue != nil {
+						v = defaultValue.(uint16)
+					}
+				}
+				flag.Uint16Var(ptr, arg, v, usage)
+			case *int32:
+				var v int32
+				if *ptr != v {
+					v = *ptr
+				} else {
+					if defaultValue != nil {
+						v = defaultValue.(int32)
+					}
+				}
+				flag.Int32Var(ptr, arg, v, usage)
+			case *uint32:
+				var v uint32
+				if *ptr != v {
+					v = *ptr
+				} else {
+					if defaultValue != nil {
+						v = defaultValue.(uint32)
+					}
+				}
+				flag.Uint32Var(ptr, arg, v, usage)
+			case *[]string:
+				var v flag.SliceValue
+				if defaultValue != nil {
+					sliceValue := defaultValue.(flag.SliceValue)
+					if len(sliceValue) > 0 {
+						for _, u := range sliceValue {
+							v = append(v, u)
+						}
+					}
+					v = defaultValue.(flag.SliceValue)
+				}
+				flag.SliceVar((*flag.SliceValue)(ptr), arg, v, usage)
 			case *string:
 				var v string
 				if *ptr != v {
